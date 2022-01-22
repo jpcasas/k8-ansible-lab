@@ -1,0 +1,26 @@
+---
+_meta:
+ hostsvars:
+  
+all:
+  hosts: 
+    ubuntu10:
+      ansible_host: localhost
+      ansible_user: vagrant
+      ansible_port: 2222
+      ansible_private_key_file: .vagrant/machines/ubuntu10/virtualbox/private_key
+    ubuntu11:
+      ansible_host: localhost
+      ansible_user: vagrant
+      ansible_port: 2200
+      ansible_private_key_file: .vagrant/machines/ubuntu11/virtualbox/private_key
+    ubuntu12:
+      ansible_host: localhost
+      ansible_user: vagrant
+      ansible_port: 2201
+      ansible_private_key_file: .vagrant/machines/ubuntu12/virtualbox/private_key
+    ubuntu13:
+      ansible_host: localhost
+      ansible_user: vagrant
+      ansible_port: 2202
+      ansible_private_key_file: .vagrant/machines/ubuntu13/virtualbox/private_key
