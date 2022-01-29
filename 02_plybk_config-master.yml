@@ -1,0 +1,42 @@
+---
+
+- name: Configure Control Plane Node
+  hosts: master
+  tasks:
+   - name: Copy Network configuration
+     copy:
+      src: ./files/calico.yaml
+      dest: ~/calico.yaml
+   - name: Init Kube configuration
+     command: 'kubeadm init --apiserver-advertise-address {{ bind_address }}'
+     become: true
+     register: initResult
+     ignore_errors: true
+   - name: print results
+     debug:
+      var: initResult
+   - name: Copy Kube config files
+     fetch:
+      src: /etc/kubernetes/admin.conf
+      dest: result/config
+     become: true
+   - name: config kubectl
+     file:
+       path: ~/.kube
+       state: directory
+   - name: copy kube config
+     copy:
+      src: result/config/{{ inventory_hostname }}/etc/kubernetes/admin.conf
+      dest: ~/.kube/config
+   - name: change own of conf files
+     file:
+      path: ~/.kube/config
+      owner: "{{ ansible_user_id }}"
+      group: "{{ ansible_user_id }}"
+   - name: install calico
+     command: kubectl apply -f ~/calico.yaml
+   - name: Get join command
+     command: kubeadm token create --print-join-command
+     register: joinCommand
+   
+  

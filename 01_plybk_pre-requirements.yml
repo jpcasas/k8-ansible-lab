@@ -1,0 +1,108 @@
+---
+- name: Ensure sysctl configuration
+  hosts: all
+  tasks:
+   - name: net ipv4 forward to 1
+     ansible.posix.sysctl:
+      name: net.ipv4.ip_forward
+      value: "1"
+      sysctl_set: yes
+      state: present
+      reload: yes
+     become: true
+- name: Load Modules
+  hosts: all
+  tasks:
+   - name: Load overlay
+     community.general.modprobe:
+      name: overlay
+      state: present
+     become: true
+   - name: Load br_netfilter
+     community.general.modprobe:
+      name: br_netfilter
+      state: present
+     become: true
+- name: Copy file Containerd modules conf
+  hosts: all
+  tasks:
+    - copy:
+       src: ./files/containerd.conf
+       dest: /etc/modules-load.d/containerd.conf
+       owner: root
+       group: root
+      become: true
+- name: Install Containerd
+  hosts: all
+  tasks:
+    - name: install Containerd
+      package:
+       name: containerd
+       state: present
+      become: true
+- name: config containerd
+  hosts: all
+  become: true
+  tasks:
+    - name: create container dir 
+      file:
+       path: /etc/containerd
+       state: directory
+    - name: get config
+      command: containerd config default 
+      register: containerdConfig
+    - name: store config file
+      copy:
+       content: "{{ containerdConfig.stdout }}"
+       dest: "/etc/containerd/config.toml"
+    - name: Change SytemdCgroup value in configuration
+      replace:
+       path: "/etc/containerd/config.toml"
+       regexp: 'SystemdCgroup = false'
+       replace: 'SystemdCgroup = true'
+    - name: Restart containerd
+      service:
+       name: containerd
+       state: restarted
+- name: Install Kubernetes packages - kubeadm kubelet and kubectl
+  hosts: ubuntu
+  become: true
+  tasks:
+    - name: ensure key for repo
+      apt_key:
+       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg 
+       state: present
+    - name: ensure repository for kube*
+      apt_repository:
+       repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+       state: present
+    - name: install kubelet
+      package:
+       name: kubelet
+       state: present
+    - name: install kubeadm
+      package:
+       name: kubeadm
+       state: present
+    - name: install kubectl
+      package:
+       name: kubectl
+       state: present
+    - name: enable containerd service
+      service:
+       name: containerd
+       enabled: true
+       state: started
+    - name: enable kubelet service
+      service:
+       name: kubelet
+       enabled: true
+    
+    
+
+
+      
+
+      
+      
+      

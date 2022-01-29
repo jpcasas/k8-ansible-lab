@@ -1,0 +1,12 @@
+[ubuntu]
+ubuntu10
+ubuntu11
+ubuntu12
+ubuntu13
+
+[master]
+ubuntu13
+[nodes]
+ubuntu10
+ubuntu11
+ubuntu12
