@@ -19,6 +19,16 @@
   vars:
    master_host: "{{ groups['master'][0] }}"
   tasks:
+   - name: copy kubelet env file
+     template:
+      src: kubelet_env
+      dest: /var/lib/kubelet/kubeadm-flags.env
+     become: true
+   - name: Restart Kubelet
+     ansible.builtin.service:
+      name: kubelet
+      state: restarted
+     become: true
    - name: Join cluster
      script: result/{{ master_host }}/tmp/join.sh
      become: true

@@ -5,7 +5,10 @@ Vagrant.configure("2") do |config|
       config.vm.define "ubuntu#{i}" do | ubuntu |
         ubuntu.vm.box = "ubuntu/hirsute64"
         ubuntu.vm.hostname = "ubuntu#{i}"
+
+        ubuntu.vm.network "public_network", ip: "192.168.1.#{i+250}"
         ubuntu.vm.network "private_network", ip: "192.168.56.#{i}"
+
       end
     end 
   

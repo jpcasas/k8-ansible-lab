@@ -1,0 +1,1 @@
+kubeadm join 192.168.0.202:6443 --token mysgaw.hizvi4nmgbm1kka0 --discovery-token-ca-cert-hash sha256:63c260c90e9fd67581044b5957a5c4429c9f0fc877e2a9b676bc47db8948a419 

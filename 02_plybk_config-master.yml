@@ -3,12 +3,8 @@
 - name: Configure Control Plane Node
   hosts: master
   tasks:
-   - name: Copy Network configuration
-     copy:
-      src: ./files/calico.yaml
-      dest: ~/calico.yaml
    - name: Init Kube configuration
-     command: 'kubeadm init --apiserver-advertise-address {{ bind_address }}'
+     command: 'kubeadm init --pod-network-cidr 192.168.0.0/16' 
      become: true
      register: initResult
      ignore_errors: true
@@ -33,8 +29,20 @@
       path: ~/.kube/config
       owner: "{{ ansible_user_id }}"
       group: "{{ ansible_user_id }}"
-   - name: install calico
-     command: kubectl apply -f ~/calico.yaml
+   #- name: install calico
+   #  command: kubectl apply -f ~/calico.yaml
+   - name: Download Tigera Calico operator
+     get_url:
+      url: https://projectcalico.docs.tigera.io/manifests/tigera-operator.yaml
+      dest: ~/tigera-operator.yaml
+   - name: Calico necessary custom resource.
+     get_url:
+      url: https://projectcalico.docs.tigera.io/manifests/custom-resources.yaml
+      dest: ~/custom-resources.yaml
+   - name: Calico ensure a Deployment for tigera operator
+     shell: kubectl create -f ~/tigera-operator.yaml
+   - name: Calico ensure a Custom Resources Deployment 
+     shell: kubectl create -f ~/custom-resources.yaml
    - name: Get join command
      command: kubeadm token create --print-join-command
      register: joinCommand
